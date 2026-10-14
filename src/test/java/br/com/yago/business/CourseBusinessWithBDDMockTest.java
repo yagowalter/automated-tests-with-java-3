@@ -4,6 +4,7 @@ import br.com.yago.service.CourseService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 import java.util.Arrays;
 import java.util.List;
@@ -59,34 +60,59 @@ class CourseBusinessWithBDDMockTest {
     void test_DeletedCoursesNotRelatedToSpring_UsingMockitoVerify_ShouldCallMethod_deleteCourse() {
 
         // Given / Arrange
+        String agileCourse = "Agile Desmistificado com Scrum, XP, Kanban e Trello";
+        String architectureCourse = "Microsserviços do 0 com Spring Cloud, Spring Boot e Docker";
         given(mockService.retrieveCourses("Leandro")).willReturn(courses);
 
         // When / Act
         business.deleteCoursesNotRelatedToSpring("Leandro");
 
         // Then / Assert
-        verify(mockService, atLeastOnce()).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
-        verify(mockService, atLeast(1)).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
-        verify(mockService, times(1)).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
-        verify(mockService).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
-        verify(mockService, never()).deleteCourse("Microsserviços do 0 com Spring Cloud, Spring Boot e Docker");
+        verify(mockService, atLeastOnce()).deleteCourse(agileCourse);
+        verify(mockService, atLeast(1)).deleteCourse(agileCourse);
+        verify(mockService, times(1)).deleteCourse(agileCourse);
+        verify(mockService).deleteCourse(agileCourse);
+        verify(mockService, never()).deleteCourse(architectureCourse);
     }
 
-    @DisplayName("Delete Courses not Related to Spring Using mockito should call Method Delete Course V2")
+    @DisplayName("Delete Courses not Related to Spring Capturing Arguments should call Method Delete Course V2")
     @Test
     void test_DeletedCoursesNotRelatedToSpring_UsingMockitoVerify_ShouldCallMethod_deleteCourseV2() {
 
         // Given / Arrange
+        String agileCourse = "Agile Desmistificado com Scrum, XP, Kanban e Trello";
+        String architectureCourse = "Microsserviços do 0 com Spring Cloud, Spring Boot e Docker";
         given(mockService.retrieveCourses("Leandro")).willReturn(courses);
 
         // When / Act
         business.deleteCoursesNotRelatedToSpring("Leandro");
 
         // Then / Assert
-        then(mockService).should().deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
-        then(mockService).should().deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
-        then(mockService).should().deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
-        then(mockService).should().deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
-        then(mockService).should(never()).deleteCourse("Microsserviços do 0 com Spring Cloud, Spring Boot e Docker");
+        then(mockService).should().deleteCourse(agileCourse);
+        then(mockService).should(never()).deleteCourse(architectureCourse);
+    }
+
+    @DisplayName("Delete Courses not Related to Spring Using mockito should call Method Delete Course V2")
+    @Test
+    void test_DeletedCoursesNotRelatedToSpring_CapturingArguments_ShouldCallMethod_deleteCourseV2() {
+
+        // Given / Arrange
+//        courses = Arrays.asList(
+//                "Agile Desmistificado com Scrum, XP, Kanban e Trello",
+//                "REST API's RESTFul do 0 à AWS com Spring Boot 3 Java e Docker"
+//        );
+
+//        String agileCourse = "Agile Desmistificado com Scrum, XP, Kanban e Trello";
+//        String architectureCourse = "Microsserviços do 0 com Spring Cloud, Spring Boot e Docker";
+        given(mockService.retrieveCourses("Leandro")).willReturn(courses);
+
+        ArgumentCaptor<String> argumentCaptor = ArgumentCaptor.forClass(String.class);
+
+        // When / Act
+        business.deleteCoursesNotRelatedToSpring("Leandro");
+
+        // Then / Assert
+        then(mockService).should(times(7)).deleteCourse(argumentCaptor.capture());
+        assertThat(argumentCaptor.getAllValues().size(), is(7));
     }
 }
