@@ -11,6 +11,7 @@ import java.util.List;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.CoreMatchers.is;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.*;
 
 
@@ -53,7 +54,7 @@ class CourseBusinessWithBDDMockTest {
         assertThat(filteredCourses.size(), is(4));
     }
 
-    @DisplayName("Delete Courses not Related to Spring Using mockito should call Method")
+    @DisplayName("Delete Courses not Related to Spring Using mockito should call Method Delete Course V2")
     @Test
     void test_DeletedCoursesNotRelatedToSpring_UsingMockitoVerify_ShouldCallMethod_deleteCourse() {
 
@@ -69,5 +70,23 @@ class CourseBusinessWithBDDMockTest {
         verify(mockService, times(1)).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
         verify(mockService).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
         verify(mockService, never()).deleteCourse("Microsserviços do 0 com Spring Cloud, Spring Boot e Docker");
+    }
+
+    @DisplayName("Delete Courses not Related to Spring Using mockito should call Method Delete Course V2")
+    @Test
+    void test_DeletedCoursesNotRelatedToSpring_UsingMockitoVerify_ShouldCallMethod_deleteCourseV2() {
+
+        // Given / Arrange
+        given(mockService.retrieveCourses("Leandro")).willReturn(courses);
+
+        // When / Act
+        business.deleteCoursesNotRelatedToSpring("Leandro");
+
+        // Then / Assert
+        then(mockService).should().deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+        then(mockService).should().deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+        then(mockService).should().deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+        then(mockService).should().deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+        then(mockService).should(never()).deleteCourse("Microsserviços do 0 com Spring Cloud, Spring Boot e Docker");
     }
 }
