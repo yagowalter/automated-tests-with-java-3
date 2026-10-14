@@ -54,15 +54,18 @@ public class ListTest {
 
     @DisplayName("")
     @Test
-    void test_MockingList_When_GetIsCalledWithArgumentMatcher_ShouldReturnYago() {
+    void test_MockingList_When_ThrowsAnException() {
 
         // Given / Arrange
         var list = mock(List.class);
-        when(list.get(anyInt())).thenReturn("Yago");
+        when(list.get(anyInt())).thenThrow(new RuntimeException("Foo Bar!"));
 
         // When / Act & Then / Assert
-        assertEquals("Yago", list.get(anyInt()));
-        assertEquals("Yago", list.get(anyInt()));
-
+        assertThrows(RuntimeException.class,
+                () -> {
+                    // When / Act
+                    list.get(anyInt());
+                },
+                () -> "Should have throw an RunTimeException");
     }
 }
