@@ -2,6 +2,7 @@ package br.com.yago.business;
 
 import br.com.yago.service.CourseService;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
@@ -50,6 +51,23 @@ class CourseBusinessWithBDDMockTest {
 
         // Then / Assert
         assertThat(filteredCourses.size(), is(4));
+    }
 
+    @DisplayName("Delete Courses not Related to Spring Using mockito should call Method")
+    @Test
+    void test_DeletedCoursesNotRelatedToSpring_UsingMockitoVerify_ShouldCallMethod_deleteCourse() {
+
+        // Given / Arrange
+        given(mockService.retrieveCourses("Leandro")).willReturn(courses);
+
+        // When / Act
+        business.deleteCoursesNotRelatedToSpring("Leandro");
+
+        // Then / Assert
+        verify(mockService, atLeastOnce()).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+        verify(mockService, atLeast(1)).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+        verify(mockService, times(1)).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+        verify(mockService).deleteCourse("Agile Desmistificado com Scrum, XP, Kanban e Trello");
+        verify(mockService, never()).deleteCourse("Microsserviços do 0 com Spring Cloud, Spring Boot e Docker");
     }
 }
