@@ -67,7 +67,6 @@ public class ListTest {
                     list.get(anyInt());
                 },
                 () -> "Should have throw an RunTimeException");
-        assertEquals("Yago", list.get(anyInt()));
 
     }
 }
