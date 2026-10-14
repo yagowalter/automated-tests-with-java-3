@@ -1,31 +1,68 @@
 package br.com.yago.mockito.constructor;
 
+import org.junit.jupiter.api.Test;
+import org.mockito.MockedConstruction;
+import org.mockito.Mockito;
+
 import java.math.BigDecimal;
 
-public class PaymentProcessorTest {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
-    private boolean allowForeignCurrencies;
-    private String fallbackOption;
-    private BigDecimal taxRate;
+class PaymentProcessorTest {
 
-    public PaymentProcessorTest() {
-        this(false, "DEBIT", new BigDecimal("19.00"));
+    @Test
+    void mockObjectConstruction() {
+
+        // A real object of the PaymentProcessor is returned
+        System.out.println(new PaymentProcessor().chargeCustomer("42", BigDecimal.valueOf(42)));
+
+        try (MockedConstruction<PaymentProcessor> mocked = mockConstruction(PaymentProcessor.class)) {
+
+            // Every object creation is returning a mock from now on
+            PaymentProcessor paymentProcessor = new PaymentProcessor();
+
+            when(paymentProcessor.chargeCustomer(anyString(), any(BigDecimal.class))).thenReturn(BigDecimal.TEN);
+
+            assertEquals(BigDecimal.TEN, paymentProcessor.chargeCustomer("42", BigDecimal.valueOf(42)));
+        }
+
+        // A real object of the PaymentProcessor is returned
+        System.out.println(new PaymentProcessor().chargeCustomer("42", BigDecimal.valueOf(42)));
     }
 
-    public PaymentProcessorTest(String fallbackOption, BigDecimal taxRate) {
-        this(false, fallbackOption, taxRate);
+    @Test
+    void mockDifferentObjectConstruction() {
+        try (MockedConstruction<PaymentProcessor> mocked = Mockito.mockConstruction(PaymentProcessor.class)) {
+
+            PaymentProcessor firstInstance = new PaymentProcessor("PayPal", BigDecimal.TEN);
+            PaymentProcessor secondInstance = new PaymentProcessor(true, "PayPal", BigDecimal.TEN);
+
+            when(firstInstance.chargeCustomer(anyString(), any(BigDecimal.class))).thenReturn(BigDecimal.TEN);
+            when(secondInstance.chargeCustomer(anyString(), any(BigDecimal.class))).thenReturn(BigDecimal.TEN);
+
+            assertEquals(BigDecimal.TEN, firstInstance.chargeCustomer("42", BigDecimal.valueOf(42)));
+            assertEquals(BigDecimal.TEN, secondInstance.chargeCustomer("42", BigDecimal.valueOf(42)));
+            assertEquals(2, mocked.constructed().size());
+        }
     }
 
-    public PaymentProcessorTest(boolean allowForeignCurrencies, String fallbackOption, BigDecimal taxRate) {
-        this.allowForeignCurrencies = allowForeignCurrencies;
-        this.fallbackOption = fallbackOption;
-        this.taxRate = taxRate;
-    }
+    @Test
+    void mockDifferentObjectConstructionWithAnswer() {
+        try (MockedConstruction<PaymentProcessor> mocked = Mockito.mockConstructionWithAnswer(PaymentProcessor.class,
+                // Default answer for the first mock
+                invocation -> new BigDecimal("500.00"),
+                // Additional answer for all further mocks
+                invocation -> new BigDecimal("42.00"))) {
 
-    public BigDecimal chargeCustomer(String customerId, BigDecimal netPrice) {
-        
-        // Any arbitrary implementation
-        System.out.println("About to charge customer: " + customerId);
-        return BigDecimal.ZERO;
+            PaymentProcessor firstInstance = new PaymentProcessor();
+            PaymentProcessor secondInstance = new PaymentProcessor();
+            PaymentProcessor thirdInstance = new PaymentProcessor();
+
+            assertEquals(new BigDecimal("500.00"), firstInstance.chargeCustomer("42", BigDecimal.ZERO));
+            assertEquals(new BigDecimal("42.00"), secondInstance.chargeCustomer("42", BigDecimal.ZERO));
+            assertEquals(new BigDecimal("42.00"), thirdInstance.chargeCustomer("42", BigDecimal.ZERO));
+        }
     }
 }
